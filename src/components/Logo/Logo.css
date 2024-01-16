@@ -1,0 +1,4 @@
+.tilt {
+    background-image: radial-gradient( circle farthest-corner at 10% 20%,  rgba(176,229,208,1) 42%, rgba(170, 108, 36, 0.41) 93.6% );
+    font-weight: bold;
+}
