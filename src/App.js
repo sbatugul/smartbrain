@@ -103,7 +103,6 @@ const requestOptions = {
       )
         .then((response) => response.json())
         .then((result) => {
-          console.log(result);
           this.displayFaceBox(this.calculateFaceLocation(result));
           resolve(result); 
         })
