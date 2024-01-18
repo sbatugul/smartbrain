@@ -40,18 +40,23 @@ class App extends Component {
   }
 
 
-  calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-    const image = document.getElementById('inputimage');
-    const width = Number(image.width);
-    const height = Number(image.height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
-  }
+  alculateFaceLocation = (data) => {
+    const clarifaiFaces = data.outputs[0].data.regions.map(region => {
+      const bounding_box = region.region_info.bounding_box;
+      const image = document.getElementById('inputimage');
+      const width = Number(image.width);
+      const height = Number(image.height);
+  
+      return {
+        leftCol: bounding_box.left_col * width,
+        topRow: bounding_box.top_row * height,
+        rightCol: width - bounding_box.right_col * width,
+        bottomRow: height - bounding_box.bottom_row * height
+      };
+    });
+  
+    return clarifaiFaces;
+  };
 
   displayFaceBox = (box) => {
     this.setState({box: box})
@@ -104,7 +109,7 @@ const requestOptions = {
         .then((response) => response.json())
         .then((result) => {
           this.displayFaceBox(this.calculateFaceLocation(result));
-          resolve(result); 
+          resolve(this.calculateFaceLocation(result)); 
         })
         .catch((error) => {
           console.error('Error in makeClarifaiAPICall:', error);
@@ -175,7 +180,7 @@ const requestOptions = {
                 onInputChange={this.onInputChange}
                 onButtonSubmit={this.onButtonSubmit}
               />
-              <FaceRecognition box={box} imageUrl={imageUrl} />
+              <FaceRecognition imageUrl={imageUrl} boxes={box} />
               </div>
           : (
             route === 'signin'
