@@ -5,8 +5,8 @@ const FaceRecognition = ({ imageUrl, boxes }) => {
   return (
     <div className="center ma">
       <div className="absolute mt2">
-        <img id="inputimage" src={imageUrl} alt="" width="500px" height="auto" onLoad={() => {}} />
-        {Array.isArray(boxes) && boxes.length > 0 ? (
+        <img id="inputimage" src={imageUrl} alt="" width="500px" height="auto" />
+        {boxes && Array.isArray(boxes) && boxes.length > 0 ? (
           boxes.map((box, index) => (
             <div
               key={index}

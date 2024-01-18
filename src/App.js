@@ -147,44 +147,44 @@ class App extends Component {
   };
 
   onButtonSubmit = () => {
-  this.setState({ imageUrl: this.state.input, box: [] }, () => {
-    // Check if the image has loaded
-    if (this.state.image) {
-      this.makeClarifaiAPICall()
-        .then(response => {
-          if (response) {
-            // Make the second API call to update user entries
-            fetch('https://smartbrainbe-stdo.onrender.com/image', {
-              method: 'put',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                id: this.state.user.id
+    this.setState({ imageUrl: this.state.input, boxes: [] }, () => {
+      // Check if the image has loaded
+      if (this.state.image) {
+        this.makeClarifaiAPICall()
+          .then(response => {
+            if (response) {
+              // Make the second API call to update user entries
+              fetch('https://smartbrainbe-stdo.onrender.com/image', {
+                method: 'put',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  id: this.state.user.id
+                })
               })
-            })
-              .then(secondResponse => secondResponse.json())
-              .then(data => {
-                if (data.entries !== undefined) {
-                  // Update the user entries in the state
-                  this.setState(prevState => ({
-                    user: { ...prevState.user, entries: data.entries }
-                  }));
-                } else {
-                  console.error('Error: "entries" property not found in the response.');
-                }
-              })
-              .catch(error => {
-                console.error(error);
-              });
-          }
-        })
-        .catch(error => {
-          console.error(error);
-        });
-    } else {
-      console.error('Image not loaded');
-    }
-  });
-};
+                .then(secondResponse => secondResponse.json())
+                .then(data => {
+                  if (data.entries !== undefined) {
+                    // Update the user entries in the state
+                    this.setState(prevState => ({
+                      user: { ...prevState.user, entries: data.entries }
+                    }));
+                  } else {
+                    console.error('Error: "entries" property not found in the response.');
+                  }
+                })
+                .catch(error => {
+                  console.error(error);
+                });
+            }
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      } else {
+        console.error('Image not loaded');
+      }
+    });
+  };
   
 
   onRouteChange = (route) => {
