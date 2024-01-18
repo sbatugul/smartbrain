@@ -74,52 +74,43 @@ class App extends Component {
   }
 
   returnClarifaiJSONRequestOptions = (imageUrl) => {
-const PAT = 'caa66be1dd564066b35bd67a7361c37b';
-const USER_ID = 'sbatugul';       
-const APP_ID = 'test';
-const MODEL_ID = 'face-detection';
-const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';    
-const IMAGE_URL =imageUrl;
-
-const raw = JSON.stringify({
-  "user_app_id": {
-      "user_id": USER_ID,
-      "app_id": APP_ID
-  },
-  "inputs": [
-      {
-          "data": {
-              "image": {
-                  "url": IMAGE_URL
-              }
-          }
-      }
-  ]
-});
-
-
-
-const requestOptions = {
-    method: 'POST',
-    headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Key ' + PAT
-    },
-    body: raw
-  }; 
+    const PAT = 'caa66be1dd564066b35bd67a7361c37b';
+    const USER_ID = 'sbatugul';
+    const APP_ID = 'test';
+    const MODEL_ID = 'face-detection';
+    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
+    const BASE_URL = 'https://api.clarifai.com/v2/models/face-detection/outputs';
   
-  return requestOptions
+    const queryParams = new URLSearchParams({
+      'user_app_id[user_id]': USER_ID,
+      'user_app_id[app_id]': APP_ID,
+    });
+  
+    queryParams.append('inputs[0][data][image][url]', imageUrl);
+  
+    const url = `${BASE_URL}?${queryParams}`;
+  
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Key ${PAT}`,
+        'Content-Type': 'application/json', // Add this line
+      },
+    };
+  
+    return { url, requestOptions };
   };
 
 
   makeClarifaiAPICall = () => {
     return new Promise((resolve, reject) => {
-      fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs",
-        this.returnClarifaiJSONRequestOptions(this.state.input)
-      )
+      const { url, requestOptions } = this.returnClarifaiJSONRequestOptions(this.state.input);
+  
+      fetch(url, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          console.log('Clarifai API Response:', result); // Log the entire data object
+          console.log('Clarifai API Response:', result);
           this.displayFaceBox(this.calculateFaceLocation(result));
           resolve(result);
         })
@@ -129,6 +120,7 @@ const requestOptions = {
         });
     });
   };
+  
   
   
 
