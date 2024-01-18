@@ -11,96 +11,90 @@ import './App.css';
 
 const initialState = {
   input: '',
-  imageUrl: '',
-  boxes: [],
-  route: 'signin',
-  isSignedIn: false,
-  user: {
-    id: '',
-    name: '',
-    email: '',
-    entries: 0,
-    joined: ''
-  }
-};
-
+      imageUrl: '',
+      box: {},
+      route: 'signin',
+      isSignedIn: false,
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+      }
+}
 class App extends Component {
   constructor() {
     super();
-    this.state = initialState;
+    this.state = initialState
   }
 
   loadUser = (data) => {
-    this.setState({
-      user: {
+    this.setState({user: {
         id: data.id,
         name: data.name,
         email: data.email,
         entries: data.entries,
         joined: data.joined
-      }
-    });
-  };
+  }})
+  }
+
 
   calculateFaceLocation = (data) => {
-    const regions = data.outputs[0].data.regions;
-    return regions.map(region => {
-      const boundingBox = region.region_info.bounding_box;
-      const topRow = boundingBox.top_row * this.state.image.height;
-      const leftCol = boundingBox.left_col * this.state.image.width;
-      const bottomRow = this.state.image.height - (boundingBox.bottom_row * this.state.image.height);
-      const rightCol = this.state.image.width - (boundingBox.right_col * this.state.image.width);
-  
-      const confidence = region.data.value; // Confidence score for the detected face
-  
-      return {
-        topRow,
-        leftCol,
-        bottomRow,
-        rightCol,
-        confidence
-      };
-    });
-  };
-  displayFaceBox = (boxes) => {
-    this.setState({ boxes });
-  };
+    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById('inputimage');
+    const width = Number(image.width);
+    const height = Number(image.height);
+    return {
+      leftCol: clarifaiFace.left_col * width,
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - (clarifaiFace.right_col * width),
+      bottomRow: height - (clarifaiFace.bottom_row * height)
+    }
+  }
+
+  displayFaceBox = (box) => {
+    this.setState({box: box})
+  }
 
   returnClarifaiJSONRequestOptions = (imageUrl) => {
-    const PAT = '24f606ef23c34b02aa996be4c7820c37';
-    const USER_ID = 'sbatugul';
-    const APP_ID = 'test';
-    const MODEL_ID = 'face-detection';
-    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
-    const IMAGE_URL = imageUrl;
+const PAT = 'caa66be1dd564066b35bd67a7361c37b';
+const USER_ID = 'sbatugul';       
+const APP_ID = 'test';
+const MODEL_ID = 'face-detection';
+const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';    
+const IMAGE_URL =imageUrl;
 
-    const raw = JSON.stringify({
-      "user_app_id": {
-        "user_id": USER_ID,
-        "app_id": APP_ID
-      },
-      "inputs": [
-        {
+const raw = JSON.stringify({
+  "user_app_id": {
+      "user_id": USER_ID,
+      "app_id": APP_ID
+  },
+  "inputs": [
+      {
           "data": {
-            "image": {
-              "url": IMAGE_URL
-            }
+              "image": {
+                  "url": IMAGE_URL
+              }
           }
-        }
-      ]
-    });
+      }
+  ]
+});
 
-    const requestOptions = {
-      method: 'POST',
-      headers: {
+
+
+const requestOptions = {
+    method: 'POST',
+    headers: {
         'Accept': 'application/json',
         'Authorization': 'Key ' + PAT
-      },
-      body: raw
-    };
-
-    return requestOptions;
+    },
+    body: raw
+  }; 
+  
+  return requestOptions
   };
+
 
   makeClarifaiAPICall = () => {
     return new Promise((resolve, reject) => {
@@ -109,30 +103,12 @@ class App extends Component {
       )
         .then((response) => response.json())
         .then((result) => {
-          const boxes = [];
-          const regions = result.outputs[0].data.regions;
-  
-          regions.forEach(region => {
-            const boundingBox = region.region_info.bounding_box;
-            const topRow = boundingBox.top_row * this.state.image.height;
-            const leftCol = boundingBox.left_col * this.state.image.width;
-            const bottomRow = this.state.image.height - (boundingBox.bottom_row * this.state.image.height);
-            const rightCol = this.state.image.width - (boundingBox.right_col * this.state.image.width);
-  
-            boxes.push({
-              topRow,
-              leftCol,
-              bottomRow,
-              rightCol
-            });
-          });
-  
-          this.displayFaceBox(boxes);
-          resolve(result);
+          this.displayFaceBox(this.calculateFaceLocation(result));
+          resolve(result); 
         })
         .catch((error) => {
           console.error('Error in makeClarifaiAPICall:', error);
-          reject(error);
+          reject(error); 
         });
     });
   };
@@ -142,77 +118,65 @@ class App extends Component {
     this.setState({ input: event.target.value });
   };
 
-  onImageLoad = () => {
-    this.setState({ image: document.getElementById('inputimage') });
-  };
-
   onButtonSubmit = () => {
-    this.setState({ imageUrl: this.state.input, boxes: [] }, () => {
-      // Check if the image has loaded
-      if (this.state.image) {
-        this.makeClarifaiAPICall()
-          .then(response => {
-            if (response) {
-              // Make the second API call to update user entries
-              fetch('https://smartbrainbe-stdo.onrender.com/image', {
-                method: 'put',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  id: this.state.user.id
-                })
+    this.setState({ imageUrl: this.state.input }, () => {
+      this.makeClarifaiAPICall()
+        .then(response => {
+          if (response) {
+            fetch('https://smartbrainbe-stdo.onrender.com/image', {
+              method: 'put',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: this.state.user.id
               })
-                .then(secondResponse => secondResponse.json())
-                .then(data => {
-                  if (data.entries !== undefined) {
-                    // Update the user entries in the state
-                    this.setState(prevState => ({
-                      user: { ...prevState.user, entries: data.entries }
-                    }));
-                  } else {
-                    console.error('Error: "entries" property not found in the response.');
-                  }
-                })
-                .catch(error => {
-                  console.error(error);
-                });
-            }
-          })
-          .catch(error => {
-            console.error(error);
-          });
-      } else {
-        console.error('Image not loaded');
-      }
+            })
+              .then(secondResponse => secondResponse.json())
+              .then(data => {
+                if (data.entries !== undefined) {
+                  this.setState(prevState => ({
+                    user: { ...prevState.user, entries: data.entries }
+                  }));
+                } else {
+                  console.error('Error: "entries" property not found in the response.');
+                }
+              })
+              .catch(error => {
+                console.error(error);
+              });
+          }
+        })
+        .catch(error => {
+
+          console.error(error);
+        });
     });
   };
   
-
   onRouteChange = (route) => {
     if (route === 'signout') {
-      this.setState(initialState);
+      this.setState(initialState)
     } else if (route === 'home') {
-      this.setState({ isSignedIn: true });
+      this.setState({isSignedIn: true})
     }
-    this.setState({ route: route });
-  };
+    this.setState({route: route});
+  }
 
   render() {
-    const { isSignedIn, imageUrl, route, box } = this.state;
+    const { isSignedIn, imageUrl, route, box } = this.state
     return (
       <div className="App">
         <ParticlesBg type="cobweb" bg={true} />
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
-        {route === 'home' 
+        { route === 'home' 
           ? <div>
               <Logo />
               <Rank name={this.state.user.name} entries={this.state.user.entries}/>
               <ImageLinkForm
                 onInputChange={this.onInputChange}
                 onButtonSubmit={this.onButtonSubmit}
-                onImageLoad={this.onImageLoad} 
               />
-              <FaceRecognition imageUrl={imageUrl} boxes={box} />
-            </div>
+              <FaceRecognition box={box} imageUrl={imageUrl} />
+              </div>
           : (
             route === 'signin'
             ? <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
