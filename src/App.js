@@ -67,6 +67,7 @@ class App extends Component {
     }
   };
   
+  
 
   displayFaceBox = (box) => {
     this.setState({box: box})
@@ -118,15 +119,17 @@ const requestOptions = {
       )
         .then((response) => response.json())
         .then((result) => {
+          console.log('Clarifai API Response:', result); // Log the entire data object
           this.displayFaceBox(this.calculateFaceLocation(result));
-          resolve(this.calculateFaceLocation(result)); 
+          resolve(result);
         })
         .catch((error) => {
           console.error('Error in makeClarifaiAPICall:', error);
-          reject(error); 
+          reject(error);
         });
     });
   };
+  
   
 
   onInputChange = (event) => {
