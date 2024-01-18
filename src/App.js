@@ -209,7 +209,7 @@ class App extends Component {
               <ImageLinkForm
                 onInputChange={this.onInputChange}
                 onButtonSubmit={this.onButtonSubmit}
-                onImageLoad={this.onImageLoad} {/* Add this prop */}
+                onImageLoad={this.onImageLoad} 
               />
               <FaceRecognition imageUrl={imageUrl} boxes={box} />
             </div>
@@ -222,5 +222,6 @@ class App extends Component {
       </div>
     );
   }
+}
 
 export default App;
