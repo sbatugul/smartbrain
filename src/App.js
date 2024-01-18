@@ -142,45 +142,49 @@ class App extends Component {
     this.setState({ input: event.target.value });
   };
 
-  onButtonSubmit = () => {
-    this.setState({ imageUrl: this.state.input, box: [] }, () => {
-      // Check if the image has loaded
-      if (this.state.image) {
-        this.makeClarifaiAPICall()
-          .then(response => {
-            if (response) {
-              // Make the second API call to update user entries
-              fetch('https://smartbrainbe-stdo.onrender.com/image', {
-                method: 'put',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  id: this.state.user.id
-                })
-              })
-                .then(secondResponse => secondResponse.json())
-                .then(data => {
-                  if (data.entries !== undefined) {
-                    // Update the user entries in the state
-                    this.setState(prevState => ({
-                      user: { ...prevState.user, entries: data.entries }
-                    }));
-                  } else {
-                    console.error('Error: "entries" property not found in the response.');
-                  }
-                })
-                .catch(error => {
-                  console.error(error);
-                });
-            }
-          })
-          .catch(error => {
-            console.error(error);
-          });
-      } else {
-        console.error('Image not loaded');
-      }
-    });
+  onImageLoad = () => {
+    this.setState({ image: document.getElementById('inputimage') });
   };
+
+  onButtonSubmit = () => {
+  this.setState({ imageUrl: this.state.input, box: [] }, () => {
+    // Check if the image has loaded
+    if (this.state.image) {
+      this.makeClarifaiAPICall()
+        .then(response => {
+          if (response) {
+            // Make the second API call to update user entries
+            fetch('https://smartbrainbe-stdo.onrender.com/image', {
+              method: 'put',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: this.state.user.id
+              })
+            })
+              .then(secondResponse => secondResponse.json())
+              .then(data => {
+                if (data.entries !== undefined) {
+                  // Update the user entries in the state
+                  this.setState(prevState => ({
+                    user: { ...prevState.user, entries: data.entries }
+                  }));
+                } else {
+                  console.error('Error: "entries" property not found in the response.');
+                }
+              })
+              .catch(error => {
+                console.error(error);
+              });
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    } else {
+      console.error('Image not loaded');
+    }
+  });
+};
   
 
   onRouteChange = (route) => {
@@ -193,29 +197,30 @@ class App extends Component {
   };
 
   render() {
-    const { isSignedIn, imageUrl, route, boxes } = this.state;
+    const { isSignedIn, imageUrl, route, box } = this.state;
     return (
       <div className="App">
         <ParticlesBg type="cobweb" bg={true} />
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
-        {route === 'home' ? (
-          <div>
-            <Logo />
-            <Rank name={this.state.user.name} entries={this.state.user.entries} />
-            <ImageLinkForm
-              onInputChange={this.onInputChange}
-              onButtonSubmit={this.onButtonSubmit}
-            />
-            <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
-          </div>
-        ) : route === 'signin' ? (
-          <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
-        ) : (
-          <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
-        )}
+        {route === 'home' 
+          ? <div>
+              <Logo />
+              <Rank name={this.state.user.name} entries={this.state.user.entries}/>
+              <ImageLinkForm
+                onInputChange={this.onInputChange}
+                onButtonSubmit={this.onButtonSubmit}
+                onImageLoad={this.onImageLoad} {/* Add this prop */}
+              />
+              <FaceRecognition imageUrl={imageUrl} boxes={box} />
+            </div>
+          : (
+            route === 'signin'
+            ? <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
+            : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
+          )
+        }
       </div>
     );
   }
-}
 
 export default App;
