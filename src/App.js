@@ -41,22 +41,32 @@ class App extends Component {
 
 
   calculateFaceLocation = (data) => {
-    const clarifaiFaces = data.outputs[0].data.regions.map(region => {
-      const bounding_box = region.region_info.bounding_box;
-      const image = document.getElementById('inputimage');
-      const width = Number(image.width);
-      const height = Number(image.height);
+    try {
+      // Check if data is defined and has the expected structure
+      if (data && data.outputs && data.outputs[0] && data.outputs[0].data && data.outputs[0].data.regions) {
+        return data.outputs[0].data.regions.map(region => {
+          const bounding_box = region.region_info.bounding_box;
+          const image = document.getElementById('inputimage');
+          const width = Number(image.width);
+          const height = Number(image.height);
   
-      return {
-        leftCol: bounding_box.left_col * width,
-        topRow: bounding_box.top_row * height,
-        rightCol: width - bounding_box.right_col * width,
-        bottomRow: height - bounding_box.bottom_row * height
-      };
-    });
-  
-    return clarifaiFaces;
+          return {
+            leftCol: bounding_box.left_col * width,
+            topRow: bounding_box.top_row * height,
+            rightCol: width - bounding_box.right_col * width,
+            bottomRow: height - bounding_box.bottom_row * height
+          };
+        });
+      } else {
+        console.error('Invalid data structure received from Clarifai:', data);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error in calculateFaceLocation:', error);
+      return [];
+    }
   };
+  
 
   displayFaceBox = (box) => {
     this.setState({box: box})
