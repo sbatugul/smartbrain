@@ -50,16 +50,18 @@ class App extends Component {
       const leftCol = boundingBox.left_col * this.state.image.width;
       const bottomRow = this.state.image.height - (boundingBox.bottom_row * this.state.image.height);
       const rightCol = this.state.image.width - (boundingBox.right_col * this.state.image.width);
-
+  
+      const confidence = region.data.value; // Confidence score for the detected face
+  
       return {
         topRow,
         leftCol,
         bottomRow,
-        rightCol
+        rightCol,
+        confidence
       };
     });
   };
-
   displayFaceBox = (boxes) => {
     this.setState({ boxes });
   };

@@ -1,3 +1,5 @@
+// FaceRecognition.js
+
 import React from "react";
 import "./FaceRecognition.css";
 
@@ -16,7 +18,9 @@ const FaceRecognition = ({ imageUrl, boxes }) => {
               bottom: box.bottomRow,
               left: box.leftCol
             }}
-          ></div>
+          >
+            <p>{box.confidence}</p>
+          </div>
         ))}
       </div>
     </div>
