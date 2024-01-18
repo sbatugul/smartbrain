@@ -7,3 +7,16 @@
   flex-direction: column;
   align-items: center;
 }
+
+
+@media only screen and (max-width: 600px) {
+  .form,
+  .background {
+    width: 90%; /* Adjust the width for smaller screens */
+  }
+
+  .bounding-box {
+    position: static; /* Change the position for smaller screens */
+    box-shadow: none; /* Remove box shadow for smaller screens */
+  }
+}
