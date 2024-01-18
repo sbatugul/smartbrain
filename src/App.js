@@ -58,7 +58,7 @@ class App extends Component {
   }
 
   returnClarifaiJSONRequestOptions = (imageUrl) => {
-const PAT = 'caa66be1dd564066b35bd67a7361c37b';
+const PAT = '24f606ef23c34b02aa996be4c7820c37';
 const USER_ID = 'sbatugul';       
 const APP_ID = 'test';
 const MODEL_ID = 'face-detection';
