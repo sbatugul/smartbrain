@@ -41,87 +41,77 @@ class App extends Component {
 
 
   calculateFaceLocation = (data) => {
-    try {
-      // Check if data is defined and has the expected structure
-      if (data && data.outputs && data.outputs[0] && data.outputs[0].data && data.outputs[0].data.regions) {
-        return data.outputs[0].data.regions.map(region => {
-          const bounding_box = region.region_info.bounding_box;
-          const image = document.getElementById('inputimage');
-          const width = Number(image.width);
-          const height = Number(image.height);
-  
-          return {
-            leftCol: bounding_box.left_col * width,
-            topRow: bounding_box.top_row * height,
-            rightCol: width - bounding_box.right_col * width,
-            bottomRow: height - bounding_box.bottom_row * height
-          };
-        });
-      } else {
-        console.error('Invalid data structure received from Clarifai:', data);
-        return [];
-      }
-    } catch (error) {
-      console.error('Error in calculateFaceLocation:', error);
-      return [];
+    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById('inputimage');
+    const width = Number(image.width);
+    const height = Number(image.height);
+    return {
+      leftCol: clarifaiFace.left_col * width,
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - (clarifaiFace.right_col * width),
+      bottomRow: height - (clarifaiFace.bottom_row * height)
     }
-  };
-  
-  
+  }
 
   displayFaceBox = (box) => {
     this.setState({box: box})
   }
 
   returnClarifaiJSONRequestOptions = (imageUrl) => {
-    const PAT = 'caa66be1dd564066b35bd67a7361c37b';
-    const USER_ID = 'sbatugul';
-    const APP_ID = 'test';
-    const MODEL_ID = 'face-detection';
-    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
-    const BASE_URL = 'https://api.clarifai.com/v2/models/face-detection/outputs';
-  
-    const queryParams = new URLSearchParams({
-      'user_app_id[user_id]': USER_ID,
-      'user_app_id[app_id]': APP_ID,
-    });
-  
-    queryParams.append('inputs[0][data][image][url]', imageUrl);
-  
-    const url = `${BASE_URL}?${queryParams}`;
-  
-    const requestOptions = {
-      method: 'POST',
-      headers: {
+const PAT = 'caa66be1dd564066b35bd67a7361c37b';
+const USER_ID = 'sbatugul';       
+const APP_ID = 'test';
+const MODEL_ID = 'face-detection';
+const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';    
+const IMAGE_URL =imageUrl;
+
+const raw = JSON.stringify({
+  "user_app_id": {
+      "user_id": USER_ID,
+      "app_id": APP_ID
+  },
+  "inputs": [
+      {
+          "data": {
+              "image": {
+                  "url": IMAGE_URL
+              }
+          }
+      }
+  ]
+});
+
+
+
+const requestOptions = {
+    method: 'POST',
+    headers: {
         'Accept': 'application/json',
-        'Authorization': `Key ${PAT}`,
-        'Content-Type': 'application/json', // Add this line
-      },
-    };
+        'Authorization': 'Key ' + PAT
+    },
+    body: raw
+  }; 
   
-    return { url, requestOptions };
+  return requestOptions
   };
 
 
   makeClarifaiAPICall = () => {
     return new Promise((resolve, reject) => {
-      const { url, requestOptions } = this.returnClarifaiJSONRequestOptions(this.state.input);
-  
-      fetch(url, requestOptions)
+      fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs",
+        this.returnClarifaiJSONRequestOptions(this.state.input)
+      )
         .then((response) => response.json())
         .then((result) => {
-          console.log('Clarifai API Response:', result);
           this.displayFaceBox(this.calculateFaceLocation(result));
-          resolve(result);
+          resolve(result); 
         })
         .catch((error) => {
           console.error('Error in makeClarifaiAPICall:', error);
-          reject(error);
+          reject(error); 
         });
     });
   };
-  
-  
   
 
   onInputChange = (event) => {
@@ -185,7 +175,7 @@ class App extends Component {
                 onInputChange={this.onInputChange}
                 onButtonSubmit={this.onButtonSubmit}
               />
-              <FaceRecognition imageUrl={imageUrl} boxes={box} />
+              <FaceRecognition box={box} imageUrl={imageUrl} />
               </div>
           : (
             route === 'signin'
