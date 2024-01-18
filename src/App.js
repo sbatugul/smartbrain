@@ -40,7 +40,7 @@ class App extends Component {
   }
 
 
-  alculateFaceLocation = (data) => {
+  calculateFaceLocation = (data) => {
     const clarifaiFaces = data.outputs[0].data.regions.map(region => {
       const bounding_box = region.region_info.bounding_box;
       const image = document.getElementById('inputimage');
