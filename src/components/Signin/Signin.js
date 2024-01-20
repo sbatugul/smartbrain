@@ -50,7 +50,7 @@ class Signin extends React.Component {
                 <main className="pa4 black-80">
                     <div className="measure center">
                         <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
-                            <legend className="f1 fw6 ph0 mh0">Welcome to the Smartbrain app!</legend>
+                            <legend className="f1 white b fw6 ph0 mh0">Welcome to the Smartbrain app!</legend>
                             <p className="f4 white b fw6 ph0 mh0">Please sign in to try the artificial intelligence that finds the face in the picture. If you are not registered, please register.</p>
                             <div className="mt3">
                                 <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
