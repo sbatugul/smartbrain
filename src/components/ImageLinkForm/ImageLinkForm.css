@@ -1,3 +1,5 @@
+@media screen and (max-width: 600px) {
+
 .form {
     width: 700px;
     --s: 140px; /* control the size */
@@ -10,6 +12,9 @@
      radial-gradient(farthest-side at 50% -33.33%,var(--_g)),
      rgba(176,229,208,1); /* second color */
     background-size: calc(var(--s)/4.667) var(--s),var(--s) calc(var(--s)/4.667);
+
+
       }
+    }
       
       
