@@ -4,7 +4,7 @@ import "./ImageLinkForm.css"
 const ImageLinkForm = ({onInputChange, onButtonSubmit}) => {
     return (
         <div>
-            <p className="f3 ">
+            <p className="f3 white b">
                 {'Please provide an image URL(not longer than 2000 characters) to make the search.Give it a try!'}
             </p>
             <div className="center">
