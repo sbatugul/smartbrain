@@ -165,7 +165,7 @@ const requestOptions = {
     const { isSignedIn, imageUrl, route, box } = this.state
     return (
       <div className="App">
-        <ParticlesBg type="cobweb" bg={true} />
+        <ParticlesBg type="cobweb" num={5} bg={true} />
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
         { route === 'home' 
           ? <div>
